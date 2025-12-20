@@ -1,0 +1,116 @@
+plugins {
+    id 'java'
+    // Spring Boot 4.x (Spring Framework 7)
+    id 'org.springframework.boot' version '4.0.1'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.callable'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+    toolchain {
+        // Java 21 (khuyến nghị cho Boot 4)
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += [
+            // MapStruct cấu hình
+            "-Amapstruct.defaultComponentModel=spring",
+            "-Amapstruct.suppressGeneratorTimestamp=true",
+            "-Amapstruct.verbose=true"
+    ]
+}
+
+repositories {
+    mavenCentral()
+    // Dùng cho imagekit-java
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+
+    // ================= IMAGEKIT =================
+    // Used for uploading images/videos to ImageKit CDN
+    implementation('com.github.imagekit-developer:imagekit-java:2.0.1') {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // ================= MAPSTRUCT =================
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+    // ================= LOMBOK =================
+    // Compile-time mapper for converting DTOs <-> Entities
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+    // ================= GOOGLE OAUTH2 =================
+    implementation 'com.google.api-client:google-api-client:2.6.0'
+    implementation 'com.google.oauth-client:google-oauth-client:1.35.0'
+    implementation 'com.google.http-client:google-http-client-jackson2:1.44.1'
+
+
+    // ================= JWT (JSON WEB TOKEN) =================
+    //
+    implementation "io.jsonwebtoken:jjwt-api:0.12.6"
+    implementation "io.jsonwebtoken:jjwt-impl:0.12.6"
+    implementation "io.jsonwebtoken:jjwt-jackson:0.12.6"
+
+    // ================= SPRING BOOT – CORE / OPS =================
+    // Health check, metrics, monitoring (Prometheus, etc.)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // ================= SPRING BOOT – PERFORMANCE =================
+    // Cache abstraction (Redis, Caffeine, EhCache…)
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    // ================= SPRING BOOT – DATABASE =================
+    // JPA + Hibernate + Transaction management
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // ================= SPRING BOOT – SECURITY =================
+    // Authentication, Authorization, Security Filter Chain
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // ================= SPRING BOOT – VALIDATION =================
+    // Bean Validation (Jakarta Validation, Hibernate Validator)
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // ================= SPRING BOOT – WEB (MVC) =================
+    // REST API, Controller, DispatcherServlet (Spring MVC)
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+    // ================= SPRING BOOT – WEBSOCKET =================
+    // WebSocket, STOMP, realtime communication
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+
+    // ================= DATABASE =================
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // ================= TEST =================
+    testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-cache-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-validation-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-websocket-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
