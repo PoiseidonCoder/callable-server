@@ -29,14 +29,6 @@ public class JWTService {
     @Value("${jwt.refreshExpirationMs}")
     Long refreshExpirationMs;
 
-    public String generateAccessToken(String username) {
-        return generateToken(username, accessExpirationMs);
-    }
-
-    public String generateRefreshToken(String username) {
-        return generateToken(username, refreshExpirationMs);
-    }
-
     private String generateToken(String username, Long expirationTime) {
         Map<String, Object> claims = new HashMap<>();
 
@@ -47,6 +39,14 @@ public class JWTService {
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getKey())
                 .compact();
+    }
+
+    public String generateAccessToken(String username) {
+        return generateToken(username, accessExpirationMs);
+    }
+
+    public String generateRefreshToken(String username) {
+        return generateToken(username, refreshExpirationMs);
     }
 
     public String extractUserName(String token) {
@@ -64,7 +64,6 @@ public class JWTService {
     public Long getRefreshTokenExpirationTime() {
         return System.currentTimeMillis() + refreshExpirationMs;
     }
-
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUserName(token);

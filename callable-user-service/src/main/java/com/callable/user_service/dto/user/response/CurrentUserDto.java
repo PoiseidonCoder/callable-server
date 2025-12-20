@@ -1,4 +1,4 @@
-package com.callable.user_service.dto.common;
+package com.callable.user_service.dto.user.response;
 
 import com.callable.user_service.enums.Role;
 import lombok.Builder;
@@ -8,9 +8,9 @@ import java.util.Set;
 
 @Getter
 @Builder
-public class UserAuthDto {
+public class CurrentUserDto {
     Long id;
-    String email;
-    Set<Role> role;
+    String fullName;
     String avatar;
+    Set<Role> role;
 }

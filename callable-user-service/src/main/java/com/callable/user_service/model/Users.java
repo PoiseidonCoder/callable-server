@@ -1,6 +1,8 @@
 package com.callable.user_service.model;
 
 import com.callable.user_service.enums.AuthProvider;
+import com.callable.user_service.enums.Gender;
+import com.callable.user_service.enums.Marital;
 import com.callable.user_service.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +37,37 @@ public class Users implements UserDetails {
     @Column(nullable = false)
     String password;
 
+    @Column
+    String avatar;
+
+    @Column
+    String firstName;
+
+    @Column
+    String lastName;
+
+    @Column
+    String biography;
+
+    @Column
+    Gender gender;
+
+    @Column
+    Date birthDate;
+
+    @Column
+    Integer phoneNumber;
+
+    @Column
+    Marital marital;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "role")
+    Set<Role> role = new HashSet<>();
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     AuthProvider provider = AuthProvider.LOCAL;
@@ -41,19 +75,10 @@ public class Users implements UserDetails {
     @Column(name = "provider_id")
     String providerId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
-    @Column(name = "role")
-    Set<Role> roles = new HashSet<>();
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name()))
+        return role.stream()
+                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
                 .toList();
     }
 
