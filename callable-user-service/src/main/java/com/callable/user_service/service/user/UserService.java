@@ -26,4 +26,5 @@ public class UserService {
                 .avatar(user.getAvatar())
                 .build();
     }
+
 }

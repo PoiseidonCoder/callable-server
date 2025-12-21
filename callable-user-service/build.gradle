@@ -99,6 +99,8 @@ dependencies {
 
     // ================= DATABASE =================
     runtimeOnly 'org.postgresql:postgresql'
+    // ================= WEB SOCKET =================
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     // ================= TEST =================
     testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'

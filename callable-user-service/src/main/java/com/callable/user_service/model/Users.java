@@ -1,9 +1,6 @@
 package com.callable.user_service.model;
 
-import com.callable.user_service.enums.AuthProvider;
-import com.callable.user_service.enums.Gender;
-import com.callable.user_service.enums.Marital;
-import com.callable.user_service.enums.Role;
+import com.callable.user_service.enums.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,6 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -60,6 +58,12 @@ public class Users implements UserDetails {
 
     @Column
     Marital marital;
+
+    @Column
+    Active active = Active.OFFLINE;
+
+    @Column
+    Instant lastOnline;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
