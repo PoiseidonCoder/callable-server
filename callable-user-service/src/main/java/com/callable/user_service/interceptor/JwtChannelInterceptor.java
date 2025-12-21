@@ -1,7 +1,9 @@
 package com.callable.user_service.interceptor;
 
 import com.callable.user_service.service.user.JWTService;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -13,9 +15,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class JwtChannelInterceptor implements ChannelInterceptor {
 
-    private final JWTService jwtService;
+    JWTService jwtService;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -30,10 +33,14 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             String auth = accessor.getFirstNativeHeader("Authorization");
 
             if (auth == null || !auth.startsWith("Bearer ")) {
-                throw new IllegalArgumentException("Missing JWT");
+                return null;
+            }
+            String token = auth.substring(7);
+
+            if (!jwtService.isTokenExpired(token)) {
+                return null;
             }
 
-            String token = auth.substring(7);
             String email = jwtService.extractUserName(token);
 
             accessor.setUser(

@@ -13,10 +13,10 @@ public class ImageKitConfig {
     String publicKey;
 
     @Value("${image-kit.private-key}")
-    String privateKey = "private_V0FHEknJiX5v2hZoOUhsylD2uR8=";
+    String privateKey;
 
     @Value("${image-kit.url-endpoint}")
-    String urlEndpoint = "https://ik.imagekit.io/Vinear/";
+    String urlEndpoint;
 
     @Bean
     public ImageKit imageKit() throws IOException {

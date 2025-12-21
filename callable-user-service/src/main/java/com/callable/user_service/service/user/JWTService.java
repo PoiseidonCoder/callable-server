@@ -74,7 +74,6 @@ public class JWTService {
         return extractExpiration(token).before(new Date());
     }
 
-
     private <T> T extractClaim(String token, Function<Claims, T> resolver) {
         Claims claims = extractAllClaims(token);
         return resolver.apply(claims);

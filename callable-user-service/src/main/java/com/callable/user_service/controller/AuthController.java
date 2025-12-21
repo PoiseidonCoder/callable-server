@@ -1,9 +1,11 @@
 package com.callable.user_service.controller;
 
-import com.callable.user_service.dto.user.request.LoginGoogleRequestDto;
-import com.callable.user_service.dto.user.request.LoginRequestDto;
-import com.callable.user_service.dto.user.request.RegisterRequestDto;
-import com.callable.user_service.dto.user.response.LoginResponseDto;
+import com.callable.user_service.dto.auth.request.LoginGoogleRequestDto;
+import com.callable.user_service.dto.auth.request.LoginRequestDto;
+import com.callable.user_service.dto.auth.request.RefreshTokenRequestDto;
+import com.callable.user_service.dto.auth.request.RegisterRequestDto;
+import com.callable.user_service.dto.auth.response.LoginResponseDto;
+import com.callable.user_service.dto.auth.response.RefreshTokenResponseDto;
 import com.callable.user_service.service.user.AuthService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,12 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto loginReponseDto = authService.loginService(loginRequestDto);
         return ResponseEntity.ok(loginReponseDto);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequestDto refreshTokenRequestDto) {
+        RefreshTokenResponseDto refreshTokenResponseDto = authService.refreshTokenService(refreshTokenRequestDto);
+        return ResponseEntity.ok(refreshTokenResponseDto);
     }
 
     @PostMapping("/google")

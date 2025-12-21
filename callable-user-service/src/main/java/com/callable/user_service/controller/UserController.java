@@ -1,6 +1,6 @@
 package com.callable.user_service.controller;
 
-import com.callable.user_service.dto.user.response.CurrentUserDto;
+import com.callable.user_service.dto.auth.response.CurrentUserDto;
 import com.callable.user_service.service.user.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

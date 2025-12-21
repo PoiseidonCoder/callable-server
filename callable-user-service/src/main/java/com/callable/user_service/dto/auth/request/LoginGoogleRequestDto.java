@@ -1,4 +1,4 @@
-package com.callable.user_service.dto.user.request;
+package com.callable.user_service.dto.auth.request;
 
 import com.callable.user_service.enums.AuthProvider;
 import lombok.Getter;

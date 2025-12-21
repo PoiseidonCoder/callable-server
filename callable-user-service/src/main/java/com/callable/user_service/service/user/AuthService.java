@@ -1,11 +1,13 @@
 package com.callable.user_service.service.user;
 
 
+import com.callable.user_service.dto.auth.request.LoginGoogleRequestDto;
+import com.callable.user_service.dto.auth.request.LoginRequestDto;
+import com.callable.user_service.dto.auth.request.RefreshTokenRequestDto;
+import com.callable.user_service.dto.auth.request.RegisterRequestDto;
+import com.callable.user_service.dto.auth.response.LoginResponseDto;
+import com.callable.user_service.dto.auth.response.RefreshTokenResponseDto;
 import com.callable.user_service.dto.common.UserAuthDto;
-import com.callable.user_service.dto.user.request.LoginGoogleRequestDto;
-import com.callable.user_service.dto.user.request.LoginRequestDto;
-import com.callable.user_service.dto.user.request.RegisterRequestDto;
-import com.callable.user_service.dto.user.response.LoginResponseDto;
 import com.callable.user_service.enums.AuthProvider;
 import com.callable.user_service.enums.Role;
 import com.callable.user_service.model.Users;
@@ -79,6 +81,15 @@ public class AuthService {
         userRepository.save(user);
     }
 
+    public RefreshTokenResponseDto refreshTokenService(RefreshTokenRequestDto refreshTokenRequestDto) {
+        String email = jwtService.extractUserName(refreshTokenRequestDto.getRefreshToken());
+        return RefreshTokenResponseDto.builder()
+                .accessToken(jwtService.generateAccessToken(email))
+                .refreshToken(refreshTokenRequestDto.getRefreshToken())
+                .accessTokenExpiresAt(jwtService.getAccessTokenExpirationTime())
+                .build();
+    }
+
     private Users createGoogleUser(GoogleIdToken.Payload payload) {
 
         Users user = new Users();
@@ -107,5 +118,6 @@ public class AuthService {
                 .refreshTokenExpiresAt(jwtService.getRefreshTokenExpirationTime())
                 .build();
     }
+
 
 }

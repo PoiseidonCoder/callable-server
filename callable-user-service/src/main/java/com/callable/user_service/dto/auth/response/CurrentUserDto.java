@@ -1,4 +1,4 @@
-package com.callable.user_service.dto.user.response;
+package com.callable.user_service.dto.auth.response;
 
 import com.callable.user_service.enums.Role;
 import lombok.Builder;

@@ -1,6 +1,9 @@
 package com.callable.user_service.model;
 
-import com.callable.user_service.enums.*;
+import com.callable.user_service.enums.AuthProvider;
+import com.callable.user_service.enums.Gender;
+import com.callable.user_service.enums.Marital;
+import com.callable.user_service.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -58,9 +61,6 @@ public class Users implements UserDetails {
 
     @Column
     Marital marital;
-
-    @Column
-    Active active = Active.OFFLINE;
 
     @Column
     Instant lastOnline;
