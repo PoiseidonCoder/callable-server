@@ -9,7 +9,7 @@ import lombok.Getter;
 public class LoginResponseDto {
     UserAuthDto user;
     String accessToken;
-    Long accessTokenExpiresAt;
+    Long accessTokenExpiresTime;
     String refreshToken;
-    Long refreshTokenExpiresAt;
+    Long refreshTokenExpiresTime;
 }

@@ -24,48 +24,66 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequiredArgsConstructor
 public class WebSocketPresenceListener {
 
-    Map<String, AtomicInteger> userSessions = new ConcurrentHashMap<>();
+    Map<Long, AtomicInteger> userSessions = new ConcurrentHashMap<>();
+
     SimpMessagingTemplate messagingTemplate;
+
 
     @EventListener
     public void handleConnect(SessionConnectedEvent event) {
+
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         if (accessor.getUser() == null) return;
-        String email = accessor.getUser().getName();
-        AtomicInteger count = userSessions.computeIfAbsent(email, u -> new AtomicInteger(0));
+
+        Long userId = Long.valueOf(accessor.getUser().getName());
+
+        AtomicInteger count =
+                userSessions.computeIfAbsent(userId, u -> new AtomicInteger(0));
+
         int current = count.incrementAndGet();
+
         if (current == 1) {
-            log.info("🟢 ONLINE: {}", email);
-            PresenceMessageDto presenceMessageDto = PresenceMessageDto.builder()
-                    .email(email)
+            log.info("🟢 ONLINE: userId={}", userId);
+
+            PresenceMessageDto message = PresenceMessageDto.builder()
+                    .userId(userId)
                     .presence(Presence.ONLINE)
                     .build();
-            messagingTemplate.convertAndSend("/topic/presence", presenceMessageDto);
-            log.info("sended");
+
+            messagingTemplate.convertAndSend("/topic/presence", message);
         }
     }
+
 
     @EventListener
     public void handleDisconnect(SessionDisconnectEvent event) {
+
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         if (accessor.getUser() == null) return;
-        String email = accessor.getUser().getName();
-        AtomicInteger count = userSessions.get(email);
+
+        Long userId = Long.valueOf(accessor.getUser().getName());
+
+        AtomicInteger count = userSessions.get(userId);
         if (count == null) return;
+
         int current = count.decrementAndGet();
+
         if (current <= 0) {
-            userSessions.remove(email);
-            log.info("🔴 OFFLINE: {}", email);
-            PresenceMessageDto presenceMessageDto = PresenceMessageDto.builder()
-                    .email(email)
+            userSessions.remove(userId);
+
+            log.info("🔴 OFFLINE: userId={}", userId);
+
+            PresenceMessageDto message = PresenceMessageDto.builder()
+                    .userId(userId)
                     .presence(Presence.OFFLINE)
                     .build();
-            messagingTemplate.convertAndSend("/topic/presence", presenceMessageDto);
-            log.info("sended");
+
+            messagingTemplate.convertAndSend("/topic/presence", message);
         }
     }
 
-    public Set<String> getOnlineUsers() {
+
+    public Set<Long> getOnlineUsers() {
         return userSessions.keySet();
     }
 }

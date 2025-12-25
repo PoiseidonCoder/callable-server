@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class PresenceMessageDto {
-    String email;
+    Long userId;
     Presence presence;
 }

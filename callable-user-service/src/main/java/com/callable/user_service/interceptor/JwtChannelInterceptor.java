@@ -26,7 +26,9 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor =
                 MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
-        if (accessor == null) return message;
+        if (accessor == null) {
+            return message;
+        }
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
@@ -35,16 +37,28 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             if (auth == null || !auth.startsWith("Bearer ")) {
                 return null;
             }
+
             String token = auth.substring(7);
 
-            if (!jwtService.isTokenExpired(token)) {
+            if (!JWTService.TOKEN_TYPE_ACCESS.equals(jwtService.extractTokenType(token))) {
                 return null;
             }
 
-            String email = jwtService.extractUserName(token);
+            if (jwtService.isTokenExpired(token)) {
+                return null;
+            }
+
+            Long userId = jwtService.extractUserId(token);
+            if (userId == null) {
+                return null;
+            }
 
             accessor.setUser(
-                    new UsernamePasswordAuthenticationToken(email, null)
+                    new UsernamePasswordAuthenticationToken(
+                            String.valueOf(userId),
+                            null,
+                            null
+                    )
             );
         }
 

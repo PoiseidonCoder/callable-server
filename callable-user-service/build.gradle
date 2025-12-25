@@ -11,7 +11,6 @@ description = 'Demo project for Spring Boot'
 
 java {
     toolchain {
-        // Java 21 (khuyến nghị cho Boot 4)
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
@@ -24,7 +23,6 @@ configurations {
 
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += [
-            // MapStruct cấu hình
             "-Amapstruct.defaultComponentModel=spring",
             "-Amapstruct.suppressGeneratorTimestamp=true",
             "-Amapstruct.verbose=true"
@@ -33,7 +31,6 @@ tasks.withType(JavaCompile).configureEach {
 
 repositories {
     mavenCentral()
-    // Dùng cho imagekit-java
     maven { url 'https://jitpack.io' }
 }
 
@@ -63,7 +60,6 @@ dependencies {
 
 
     // ================= JWT (JSON WEB TOKEN) =================
-    //
     implementation "io.jsonwebtoken:jjwt-api:0.12.6"
     implementation "io.jsonwebtoken:jjwt-impl:0.12.6"
     implementation "io.jsonwebtoken:jjwt-jackson:0.12.6"

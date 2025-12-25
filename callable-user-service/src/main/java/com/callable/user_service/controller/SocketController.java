@@ -21,8 +21,8 @@ public class SocketController {
     private final WebSocketPresenceListener presence;
 
     @GetMapping("/online")
-    public Set<String> onlineUsers() {
+    public Set<Long> onlineUsers() {
         return presence.getOnlineUsers();
     }
-    
+
 }

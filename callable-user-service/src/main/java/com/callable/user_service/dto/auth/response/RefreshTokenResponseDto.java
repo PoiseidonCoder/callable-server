@@ -8,5 +8,5 @@ import lombok.Getter;
 public class RefreshTokenResponseDto {
     String accessToken;
     String refreshToken;
-    Long accessTokenExpiresAt;
+    Long accessTokenExpiresTime;
 }
