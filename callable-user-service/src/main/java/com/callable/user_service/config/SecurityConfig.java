@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/friend_ship/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsServiceImp)

@@ -42,10 +42,8 @@ public class Users implements UserDetails {
     String avatar;
 
     @Column
-    String firstName;
+    String fullName;
 
-    @Column
-    String lastName;
 
     @Column
     String biography;
@@ -82,13 +80,13 @@ public class Users implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.stream()
-                .map(r -> new SimpleGrantedAuthority("ROLE_" + r.name()))
+                .map(r -> new SimpleGrantedAuthority(r.name()))
                 .toList();
     }
 
     @Override
     public String getUsername() {
-        return email;
+        return String.valueOf(id);
     }
 
     @Override

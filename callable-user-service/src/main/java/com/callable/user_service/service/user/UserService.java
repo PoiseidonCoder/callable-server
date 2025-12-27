@@ -15,13 +15,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService {
-
     public CurrentUserDto getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Users user = (Users) authentication.getPrincipal();
         return CurrentUserDto.builder()
                 .id(user.getId())
-                .fullName(user.getFirstName() + " " + user.getLastName())
+                .fullName(user.getFullName())
                 .role(user.getRole())
                 .avatar(user.getAvatar())
                 .build();

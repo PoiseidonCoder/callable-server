@@ -1,5 +1,6 @@
 package com.callable.user_service.interceptor;
 
+import com.callable.user_service.enums.AuthToken;
 import com.callable.user_service.service.user.JWTService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
             String token = auth.substring(7);
 
-            if (!JWTService.TOKEN_TYPE_ACCESS.equals(jwtService.extractTokenType(token))) {
+            if (!AuthToken.ACCESS.equals(jwtService.extractTokenType(token))) {
                 return null;
             }
 

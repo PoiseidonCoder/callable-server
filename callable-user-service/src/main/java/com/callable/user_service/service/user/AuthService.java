@@ -8,6 +8,7 @@ import com.callable.user_service.dto.auth.response.LoginResponseDto;
 import com.callable.user_service.dto.auth.response.RefreshTokenResponseDto;
 import com.callable.user_service.dto.common.UserAuthDto;
 import com.callable.user_service.enums.AuthProvider;
+import com.callable.user_service.enums.AuthToken;
 import com.callable.user_service.enums.Role;
 import com.callable.user_service.model.Users;
 import com.callable.user_service.repository.UserRepository;
@@ -35,30 +36,28 @@ public class AuthService {
     AuthenticationManager authManager;
     UserRepository userRepository;
     GoogleTokenVerifierService googleTokenVerifierService;
-
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    public LoginResponseDto loginService(LoginRequestDto dto) {
-
+    public LoginResponseDto loginService(LoginRequestDto loginRequestDto) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        dto.getEmail(),
-                        dto.getPassword()
+                        loginRequestDto.getEmail(),
+                        loginRequestDto.getPassword()
                 )
         );
 
         if (!authentication.isAuthenticated()) {
-            throw new UsernameNotFoundException(dto.getEmail());
+            throw new UsernameNotFoundException(loginRequestDto.getEmail());
         }
 
         Users user = (Users) authentication.getPrincipal();
         return buildLoginResponse(user);
     }
 
-    public LoginResponseDto loginWithGoogle(LoginGoogleRequestDto dto) {
+    public LoginResponseDto loginWithGoogle(LoginGoogleRequestDto loginGoogleRequestDto) {
 
         GoogleIdToken.Payload payload =
-                googleTokenVerifierService.verify(dto.getIdToken());
+                googleTokenVerifierService.verify(loginGoogleRequestDto.getIdToken());
 
         String email = payload.getEmail();
 
@@ -68,56 +67,50 @@ public class AuthService {
         return buildLoginResponse(user);
     }
 
-    public void registerService(RegisterRequestDto dto) {
+    public void registerService(RegisterRequestDto registerRequestDto) {
         Users user = new Users();
-        user.setEmail(dto.getEmail());
-        user.setPassword(encoder.encode(dto.getPassword()));
+        user.setEmail(registerRequestDto.getEmail());
+        user.setFullName(registerRequestDto.getFullName());
+        user.setPassword(encoder.encode(registerRequestDto.getPassword()));
         user.setRole(Set.of(Role.ROLE_USER));
         userRepository.save(user);
     }
 
 
-    public RefreshTokenResponseDto refreshTokenService(RefreshTokenRequestDto dto) {
+    public RefreshTokenResponseDto refreshTokenService(RefreshTokenRequestDto refreshTokenRequestDto) {
+        String refreshToken = refreshTokenRequestDto.getRefreshToken();
 
-        String refreshToken = dto.getRefreshToken();
+        if (!AuthToken.REFRESH.equals(jwtService.extractTokenType(refreshToken))) {
+            throw new RuntimeException("Invalid refresh token");
+        }
 
         Long userId = jwtService.extractUserId(refreshToken);
-
         if (!jwtService.validateRefreshToken(refreshToken, userId)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
         String newAccessToken = jwtService.generateAccessToken(userId);
-
         return RefreshTokenResponseDto.builder()
                 .accessToken(newAccessToken)
                 .accessTokenExpiresTime(jwtService.getAccessTokenExpirationTime())
                 .refreshToken(refreshToken)
-                .accessTokenExpiresTime(jwtService.getRefreshTokenExpirationTime())
                 .build();
     }
 
     private Users createGoogleUser(GoogleIdToken.Payload payload) {
-
         Users user = new Users();
         user.setEmail(payload.getEmail());
         user.setPassword("");
+        user.setFullName(payload.getSubject());
         user.setRole(Set.of(Role.ROLE_USER));
         user.setProvider(AuthProvider.GOOGLE);
-
         return userRepository.save(user);
     }
 
     private LoginResponseDto buildLoginResponse(Users user) {
-
         Long userId = user.getId();
-
         String accessToken = jwtService.generateAccessToken(userId);
         String refreshToken = jwtService.generateRefreshToken(userId);
-
         return LoginResponseDto.builder()
                 .user(UserAuthDto.builder()
                         .id(userId)

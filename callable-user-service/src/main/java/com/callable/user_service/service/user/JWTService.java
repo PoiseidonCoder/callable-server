@@ -1,5 +1,6 @@
 package com.callable.user_service.service.user;
 
+import com.callable.user_service.enums.AuthToken;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -29,14 +30,13 @@ public class JWTService {
     @Value("${jwt.refreshExpirationMs}")
     Long refreshExpirationMs;
 
-    public static final String TOKEN_TYPE_ACCESS = "access";
-    public static final String TOKEN_TYPE_REFRESH = "refresh";
-
     private static final String CLAIM_TYPE = "type";
 
-    private String generateToken(Long userId, String type, Long expirationTime) {
+
+    private String generateToken(Long userId, AuthToken type, Long expirationTime) {
+
         Map<String, Object> claims = new HashMap<>();
-        claims.put(CLAIM_TYPE, type);
+        claims.put(CLAIM_TYPE, type.name());
 
         long now = System.currentTimeMillis();
 
@@ -50,11 +50,11 @@ public class JWTService {
     }
 
     public String generateAccessToken(Long userId) {
-        return generateToken(userId, TOKEN_TYPE_ACCESS, accessExpirationMs);
+        return generateToken(userId, AuthToken.ACCESS, accessExpirationMs);
     }
 
     public String generateRefreshToken(Long userId) {
-        return generateToken(userId, TOKEN_TYPE_REFRESH, refreshExpirationMs);
+        return generateToken(userId, AuthToken.REFRESH, refreshExpirationMs);
     }
 
     public Long extractUserId(String token) {
@@ -62,32 +62,31 @@ public class JWTService {
         return sub == null ? null : Long.valueOf(sub);
     }
 
-    public String extractTokenType(String token) {
-        return extractClaim(token, c -> c.get(CLAIM_TYPE, String.class));
+    public AuthToken extractTokenType(String token) {
+        String type = extractClaim(token, c -> c.get(CLAIM_TYPE, String.class));
+        return type == null ? null : AuthToken.valueOf(type);
     }
 
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public boolean validateAccessToken(String token, UserDetails userDetails) {
-        if (token == null || userDetails == null) return false;
-        if (isTokenExpired(token)) return false;
 
-        if (!TOKEN_TYPE_ACCESS.equals(extractTokenType(token))) return false;
-
-        if (userDetails instanceof CustomUserDetails custom) {
-            return extractUserId(token).equals(custom.getId());
+    public boolean validateAccessToken(String token) {
+        try {
+            if (token == null) return false;
+            if (isTokenExpired(token)) return false;
+            return extractTokenType(token) == AuthToken.ACCESS;
+        } catch (Exception e) {
+            return false;
         }
-
-        return false;
     }
+
 
     public boolean validateRefreshToken(String token, Long expectedUserId) {
         if (token == null || expectedUserId == null) return false;
         if (isTokenExpired(token)) return false;
-
-        return TOKEN_TYPE_REFRESH.equals(extractTokenType(token))
+        return extractTokenType(token) == AuthToken.REFRESH
                 && expectedUserId.equals(extractUserId(token));
     }
 
@@ -96,6 +95,7 @@ public class JWTService {
         return exp == null || exp.before(new Date());
     }
 
+
     public Long getAccessTokenExpirationTime() {
         return System.currentTimeMillis() + accessExpirationMs;
     }
@@ -103,6 +103,7 @@ public class JWTService {
     public Long getRefreshTokenExpirationTime() {
         return System.currentTimeMillis() + refreshExpirationMs;
     }
+
 
     private <T> T extractClaim(String token, Function<Claims, T> resolver) {
         Claims claims = extractAllClaims(token);
