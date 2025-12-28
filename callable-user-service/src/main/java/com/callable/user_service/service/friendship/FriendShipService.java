@@ -53,11 +53,18 @@ public class FriendShipService {
                     friendShipRepository.save(friendship);
                 }
             }
+        } else {
+            FriendShip friendship = new FriendShip();
+            friendship.setFriendStatus(FriendStatus.PENDING);
+            friendship.setRequester(userRepository.getReferenceById(currentUserId));
+            friendship.setAddressee(userRepository.getReferenceById(addressee));
+            friendShipRepository.save(friendship);
         }
+
     }
 
     @Transactional
-    public void removeFriendShipRequestDto(RemoveFriendShipRequestDto removeFriendShipRequestDto) {
+    public void removeFriend(RemoveFriendShipRequestDto removeFriendShipRequestDto) {
         Long currentUserId = userService.getCurrentUser().getId();
         Long addressee = removeFriendShipRequestDto.getAddressee();
         if (currentUserId.equals(addressee)) throw new IllegalArgumentException("Cannot add yourself");
@@ -72,13 +79,13 @@ public class FriendShipService {
         } else throw new IllegalArgumentException("No friendship exists");
     }
 
-    public PageResponse<FriendShipUserResponseDto> findFriendsShip(int pageNo, int pageSize, FriendStatus friendStatus) {
+    public PageResponse<FriendShipUserResponseDto> findFriend(int pageNo, int pageSize, FriendStatus friendStatus) {
         Long currentUserId = userService.getCurrentUser().getId();
         Pageable pageable = PageRequest.of(pageNo, pageSize);
         return PageResponse.from(friendShipRepository.findFriendsShip(currentUserId, FriendStatus.ACCEPTED, pageable));
     }
 
-    public PageResponse<FriendShipUserResponseDto> findUnFriendsShip(int pageNo, int pageSize) {
+    public PageResponse<FriendShipUserResponseDto> findUnFriend(int pageNo, int pageSize) {
         Long currentUserId = userService.getCurrentUser().getId();
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);

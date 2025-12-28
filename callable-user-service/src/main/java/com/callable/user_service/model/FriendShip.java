@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -34,5 +35,8 @@ public class FriendShip {
     @Enumerated(EnumType.STRING)
     private FriendStatus friendStatus;
 
+
+    @CreationTimestamp
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 }

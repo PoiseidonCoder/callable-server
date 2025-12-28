@@ -41,11 +41,11 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
 
             String token = auth.substring(7);
 
-            if (!AuthToken.ACCESS.equals(jwtService.extractTokenType(token))) {
+            if (jwtService.isTokenExpired(token)) {
                 return null;
             }
 
-            if (jwtService.isTokenExpired(token)) {
+            if (!AuthToken.ACCESS.equals(jwtService.extractTokenType(token))) {
                 return null;
             }
 

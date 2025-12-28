@@ -11,6 +11,7 @@ import java.util.Set;
 public class UserAuthDto {
     Long id;
     String email;
+    String fullName;
     Set<Role> role;
     String avatar;
 }

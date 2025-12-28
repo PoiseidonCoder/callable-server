@@ -35,6 +35,8 @@ repositories {
 }
 
 dependencies {
+    //Dev-
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
     // ================= IMAGEKIT =================
     // Used for uploading images/videos to ImageKit CDN

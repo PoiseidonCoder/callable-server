@@ -7,6 +7,7 @@ import com.callable.user_service.service.friendship.FriendShipService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,27 +15,28 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/friend_ship")
+@Slf4j
 public class FriendShipController {
     FriendShipService friendShipService;
 
-    @PostMapping("/add_friend")
+    @PostMapping("/add")
     public void addFriend(@RequestBody AddFriendShipRequestDto addFriendShipRequestDto) {
         friendShipService.addFriend(addFriendShipRequestDto);
     }
 
-    @PostMapping("/remove_friend_ship")
-    public void removeFriendShip(@RequestBody RemoveFriendShipRequestDto removeFriendShipRequestDto) {
-        friendShipService.removeFriendShipRequestDto(removeFriendShipRequestDto);
+    @PostMapping("/remove")
+    public void removeFriend(@RequestBody RemoveFriendShipRequestDto removeFriendShipRequestDto) {
+        friendShipService.removeFriend(removeFriendShipRequestDto);
     }
 
     @GetMapping("/friend")
-    public ResponseEntity<?> findFriendsShip(@RequestParam int pageNo, @RequestParam int pageSize, @RequestParam FriendStatus friendStatus) {
-        return ResponseEntity.ok(friendShipService.findFriendsShip(pageNo, pageSize, friendStatus));
+    public ResponseEntity<?> findFriend(@RequestParam int pageNo, @RequestParam int pageSize, @RequestParam FriendStatus friendStatus) {
+        return ResponseEntity.ok(friendShipService.findFriend(pageNo, pageSize, friendStatus));
     }
 
     @GetMapping("/unfriend")
-    public ResponseEntity<?> findUnFriendsShip(@RequestParam int pageNo, @RequestParam int pageSize) {
-        return ResponseEntity.ok(friendShipService.findUnFriendsShip(pageNo, pageSize));
+    public ResponseEntity<?> findUnFriend(@RequestParam int pageNo, @RequestParam int pageSize) {
+        return ResponseEntity.ok(friendShipService.findUnFriend(pageNo, pageSize));
     }
 
 }

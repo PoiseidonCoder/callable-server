@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class PageResponse<T> {
-    private List<T> datad;
+    private List<T> data;
     private Pagination pagination;
 
     public static <T> PageResponse<T> from(Page<T> page) {

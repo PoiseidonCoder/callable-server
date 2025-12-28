@@ -100,12 +100,14 @@ public class AuthService {
     private Users createGoogleUser(GoogleIdToken.Payload payload) {
         Users user = new Users();
         user.setEmail(payload.getEmail());
+        user.setFullName((String) payload.get("name"));
         user.setPassword("");
-        user.setFullName(payload.getSubject());
+        user.setAvatar((String) payload.get("picture"));
         user.setRole(Set.of(Role.ROLE_USER));
         user.setProvider(AuthProvider.GOOGLE);
         return userRepository.save(user);
     }
+
 
     private LoginResponseDto buildLoginResponse(Users user) {
         Long userId = user.getId();
@@ -115,6 +117,7 @@ public class AuthService {
                 .user(UserAuthDto.builder()
                         .id(userId)
                         .email(user.getEmail())
+                        .fullName(user.getFullName())
                         .role(user.getRole())
                         .avatar(user.getAvatar())
                         .build())
