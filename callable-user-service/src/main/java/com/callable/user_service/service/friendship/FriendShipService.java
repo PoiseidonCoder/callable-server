@@ -2,6 +2,7 @@ package com.callable.user_service.service.friendship;
 
 import com.callable.user_service.dto.common.PageResponse;
 import com.callable.user_service.dto.friendship.request.AddFriendShipRequestDto;
+import com.callable.user_service.dto.friendship.request.RejectFriendShipRequestDto;
 import com.callable.user_service.dto.friendship.request.RemoveFriendShipRequestDto;
 import com.callable.user_service.dto.friendship.response.FriendShipUserResponseDto;
 import com.callable.user_service.enums.FriendStatus;
@@ -29,14 +30,29 @@ public class FriendShipService {
     UserRepository userRepository;
     UserService userService;
 
+    public PageResponse<FriendShipUserResponseDto> findFriendsWithFriendStatus(int pageNo, int pageSize, FriendStatus friendStatus) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Long currentUserId = userService.getCurrentUser().getId();
+
+        return PageResponse.from(friendShipRepository.findFriendsWithFriendStatus(pageable, currentUserId, FriendStatus.ACCEPTED));
+    }
+
+    public PageResponse<FriendShipUserResponseDto> findNonFriends(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Long currentUserId = userService.getCurrentUser().getId();
+
+        return PageResponse.from(friendShipRepository.findNonFriends(pageable, currentUserId));
+    }
+
     @Transactional
     public void addFriend(AddFriendShipRequestDto addFriendShipRequestDto) {
         Long currentUserId = userService.getCurrentUser().getId();
         Long addressee = addFriendShipRequestDto.getAddressee();
+
         if (currentUserId.equals(addFriendShipRequestDto.getAddressee()))
             throw new IllegalArgumentException("Cannot add yourself");
-        Optional<FriendShip> friendshipOpt = friendShipRepository.findFriendShip(currentUserId, addressee);
 
+        Optional<FriendShip> friendshipOpt = friendShipRepository.findFriendShip(currentUserId, addressee);
         if (friendshipOpt.isPresent()) {
             FriendShip friendship = friendshipOpt.get();
             switch (friendship.getFriendStatus()) {
@@ -60,7 +76,24 @@ public class FriendShipService {
             friendship.setAddressee(userRepository.getReferenceById(addressee));
             friendShipRepository.save(friendship);
         }
+    }
 
+    @Transactional
+    public void rejectFriend(RejectFriendShipRequestDto rejectFriendShipRequestDto) {
+        Long currentUserId = userService.getCurrentUser().getId();
+        Long addressee = rejectFriendShipRequestDto.getAddressee();
+        if (currentUserId.equals(addressee)) throw new IllegalArgumentException("Cannot reject yourself");
+        Optional<FriendShip> friendshipOpt = friendShipRepository.findFriendShipByAddresseeIdAndRequesterIdAndFriendStatus(currentUserId, addressee, FriendStatus.PENDING);
+
+        if (friendshipOpt.isPresent()) {
+            FriendShip friendship = friendshipOpt.get();
+            switch (friendship.getFriendStatus()) {
+                case PENDING -> {
+                    friendship.setFriendStatus(FriendStatus.REJECTED);
+                }
+                default -> throw new IllegalArgumentException("Friendship is not acceptable");
+            }
+        }
     }
 
     @Transactional
@@ -79,17 +112,5 @@ public class FriendShipService {
         } else throw new IllegalArgumentException("No friendship exists");
     }
 
-    public PageResponse<FriendShipUserResponseDto> findFriend(int pageNo, int pageSize, FriendStatus friendStatus) {
-        Long currentUserId = userService.getCurrentUser().getId();
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return PageResponse.from(friendShipRepository.findFriendsShip(currentUserId, FriendStatus.ACCEPTED, pageable));
-    }
-
-    public PageResponse<FriendShipUserResponseDto> findUnFriend(int pageNo, int pageSize) {
-        Long currentUserId = userService.getCurrentUser().getId();
-
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
-        return PageResponse.from(friendShipRepository.findUnFriendShip(currentUserId, pageable));
-    }
 
 }

@@ -22,34 +22,6 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
             """)
     Optional<FriendShip> findFriendShip(Long requesterId, Long addresseeId);
 
-
-    @Query(
-            value = """
-                        select new com.callable.user_service.dto.friendship.response.FriendShipUserResponseDto(
-                            case when fs.requester.id = :userId then fs.addressee.id else fs.requester.id end,
-                            case when fs.requester.id = :userId then fs.addressee.fullName else fs.requester.fullName  end,
-                            case when fs.requester.id = :userId then fs.addressee.avatar else fs.requester.avatar end
-                        )
-                        from FriendShip fs
-                        where
-                            (fs.requester.id = :userId or fs.addressee.id = :userId)
-                            and fs.friendStatus = :friendStatus
-                    """,
-            countQuery =
-                    """
-                                select count(fs.id)
-                                from FriendShip fs
-                                where
-                                    (fs.requester.id = :requester or fs.addressee.id = :requester)
-                                    and fs.friendStatus = :friendStatus
-                            """
-    )
-    Page<FriendShipUserResponseDto> findFriendsShip(
-            @Param("userId") Long requester,
-            FriendStatus friendStatus,
-            Pageable pageable
-    );
-
     @Query(
             value = """
                         select new com.callable.user_service.dto.friendship.response.FriendShipUserResponseDto(
@@ -82,9 +54,41 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
                         )
                     """
     )
-    Page<FriendShipUserResponseDto> findUnFriendShip(
-            @Param("userId") Long userId,
-            Pageable pageable
+    Page<FriendShipUserResponseDto> findNonFriends(
+            Pageable pageable,
+            @Param("userId") Long userId
     );
 
+
+    @Query(
+            value = """
+                        select new com.callable.user_service.dto.friendship.response.FriendShipUserResponseDto(
+                            case when fs.requester.id = :userId then fs.addressee.id else fs.requester.id end,
+                            case when fs.requester.id = :userId then fs.addressee.fullName else fs.requester.fullName  end,
+                            case when fs.requester.id = :userId then fs.addressee.avatar else fs.requester.avatar end
+                        )
+                        from FriendShip fs
+                        where
+                            (fs.requester.id = :userId or fs.addressee.id = :userId)
+                            and fs.friendStatus = :friendStatus
+                    """,
+            countQuery =
+                    """
+                                select count(fs.id)
+                                from FriendShip fs
+                                where
+                                    (fs.requester.id = :requester or fs.addressee.id = :requester)
+                                    and fs.friendStatus = :friendStatus
+                            """
+    )
+    Page<FriendShipUserResponseDto> findFriendsWithFriendStatus(
+            Pageable pageable,
+            @Param("userId") Long requester,
+            FriendStatus friendStatus
+    );
+
+    Optional<FriendShip> findFriendShipByAddresseeIdAndRequesterIdAndFriendStatus(
+            Long requesterId,
+            Long userId,
+            FriendStatus friendStatus);
 }
